@@ -7,7 +7,7 @@ export default function Document() {
         <link rel="icon" type="image/x-icon" href="/favicon.ico" />
 
         <title>
-          LLMate | create, deploy and monitor AI applications with LLmate
+          ChatProp | Your AI personal assistant for finding your dream home
         </title>
       </Head>
       <body>

@@ -248,15 +248,11 @@ const Chat = () => {
         <div className="w-full max-w-5xl mx-auto">
           <nav className="flex items-center justify-between">
             <Link href="/" className="flex items-center space-x-3">
-              <img
-                src={
-                  theme === "dark"
-                    ? "/images/full-logo.svg"
-                    : "/images/full-dark-logo.svg"
-                }
-                alt=""
-                className="w-32 aspect-auto"
-              />
+              <div
+               className="text-xl font-medium tracking-wide text-muted"
+              >
+                Chat-Prop
+              </div>
 
           
             </Link>
@@ -362,8 +358,8 @@ const Chat = () => {
                     <img
                       src={
                         theme === "dark"
-                          ? "/images/bot-dark.svg"
-                          : "/images/bot.svg"
+                          ? "/images/bot-dark.png"
+                          : "/images/bot.png"
                       }
                       alt="bot icon"
                       className="w-8 rounded-full xsm:w-full aspect-square"
@@ -445,8 +441,8 @@ const Chat = () => {
                             <img
                               src={
                                 theme === "dark"
-                                  ? "/images/bot-dark.svg"
-                                  : "/images/bot.svg"
+                                  ? "/images/bot-dark.png"
+                                  : "/images/bot.png"
                               }
                               alt="bot icon"
                               className="w-8 rounded-full xsm:w-full aspect-square"
@@ -569,8 +565,8 @@ const Chat = () => {
                         <img
                           src={
                             theme === "dark"
-                              ? "/images/bot-dark.svg"
-                              : "/images/bot.svg"
+                              ? "/images/bot-dark.png"
+                              : "/images/bot.png"
                           }
                           alt="bot icon"
                           className="w-8 rounded-full xsm:w-full aspect-square"

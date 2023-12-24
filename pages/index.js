@@ -33,8 +33,12 @@ const Home = () => {
                   <h1 className="text-3xl font-bold text-accent">
                     {HomeData.title}
                   </h1>
-
+                  
                   <p className="text-base font-normal leading-8 text-accent">
+                    {HomeData.sub_title}
+                  </p>
+
+                  <p className="text-base font-normal text-accent">
                     {HomeData.description}
                   </p>
                 </div>
