@@ -1,14 +1,13 @@
 // pages/api/app-run.js
 
 export default async function handler(req, res) {
-  const apiUrl = `${process.env.API_URL}app/${process.env.API_ID}/run/`;
-
   try {
+    const apiUrl = `${process.env.API_URL}app/${process.env.API_ID}/run/`;
     const response = await fetch(apiUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-API-KEY": "37da52c0-00b5-4638-9859-ae98ed776eaf",
+        "X-API-KEY": process.env.API_KEY,
       },
       body: JSON.stringify(req.body),
     });
@@ -24,7 +23,7 @@ export default async function handler(req, res) {
       res.end();
     }
 
-    async function process({ done, value }) {
+    async function processResponse({ done, value }) {
       if (done) {
         closeConnection();
         return;
@@ -33,10 +32,10 @@ export default async function handler(req, res) {
       const chunk = decoder.decode(value);
       sendEvent(chunk);
 
-      return reader.read().then(process);
+      return reader.read().then(processResponse);
     }
 
-    reader.read().then(process);
+    reader.read().then(processResponse);
   } catch (error) {
     console.error(error);
     res.statusCode = 500;

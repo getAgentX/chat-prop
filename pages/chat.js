@@ -115,7 +115,7 @@ const Chat = () => {
       app_run_type: "CHAT",
     };
 
-    const apiUrl = "/api/app-run";
+    const apiUrl = "/api/app-run/";
 
     const sse = await createSSEWithPost(apiUrl, {
       method: "POST",
