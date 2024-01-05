@@ -73,7 +73,6 @@ const Chat = () => {
     const response = await axios.get(apiUrl, {
       headers: {
         "Content-Type": "application/json",
-        "X-API-KEY": process.env.NEXT_PUBLIC_API_KEY,
       },
     });
 

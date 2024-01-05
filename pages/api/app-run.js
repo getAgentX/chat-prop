@@ -1,8 +1,7 @@
 // pages/api/app-run.js
 
 export default async function handler(req, res) {
-  // const apiUrl = `https://stream.llmate.ai/v1/integrate/app/6501d2848ad0f1ca427d4056/run/`;
-  const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}app/${process.env.NEXT_PUBLIC_API_ID}/run/`;
+  const apiUrl = `${process.env.API_URL}app/${process.env.API_ID}/run/`;
 
   try {
     const response = await fetch(apiUrl, {

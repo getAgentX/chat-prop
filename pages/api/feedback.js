@@ -5,7 +5,7 @@ import axios from "axios";
 export default async function handler(req, res) {
   const { messageId, feedbackValue } = req.body;
 
-  const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}chat/message/${messageId}/feedback/`;
+  const apiUrl = `${process.env.API_URL}chat/message/${messageId}/feedback/`;
 
   const payload = {
     user_feedback: feedbackValue,
@@ -15,7 +15,7 @@ export default async function handler(req, res) {
     const response = await axios.put(apiUrl, payload, {
       headers: {
         "Content-Type": "application/json",
-        "X-API-KEY": process.env.NEXT_PUBLIC_API_KEY,
+        "X-API-KEY": process.env.API_KEY,
       },
     });
 

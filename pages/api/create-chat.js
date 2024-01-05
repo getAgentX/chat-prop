@@ -4,12 +4,12 @@ import axios from "axios";
 
 export default async function handler(req, res) {
   try {
-    const chatUrl = `${process.env.NEXT_PUBLIC_API_URL}chat/create/`;
+    const chatUrl = `${process.env.API_URL}chat/create/`;
 
     const response = await axios.post(chatUrl, req.body, {
       headers: {
         "Content-Type": "application/json",
-        "X-API-KEY": process.env.NEXT_PUBLIC_API_KEY,
+        "X-API-KEY": process.env.API_KEY,
       },
     });
 
