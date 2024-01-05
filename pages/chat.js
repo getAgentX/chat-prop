@@ -125,6 +125,8 @@ const Chat = () => {
       body: JSON.stringify(payload),
     });
 
+    setPrompt("");
+
     sse.addEventListener("message", (e) => {
       const eventData = e.data.split("\n\n");
 
@@ -429,7 +431,7 @@ const Chat = () => {
                 return (
                   <div className="py-10 bg-background" key={index}>
                     <div className="max-w-5xl px-4 mx-auto">
-                      <div className="flex flex-col xsm:flex-row space-y-4 xsm:space-y-0 xsm:space-x-4">
+                      <div className="flex flex-col space-y-4 xsm:flex-row xsm:space-y-0 xsm:space-x-4">
                         <div className="flex w-16 xsm:max-w-[60px] xsm:w-full">
                           <div>
                             <img
@@ -462,7 +464,7 @@ const Chat = () => {
                             </div>
                           )}
 
-                          <div className="xsm:px-4 prose-sm prose text-muted xsm:prose-base prose-a:text-link prose-strong:text-muted marker:text-muted max-w-none">
+                          <div className="prose-sm prose xsm:px-4 text-muted xsm:prose-base prose-a:text-link prose-strong:text-muted marker:text-muted max-w-none">
                             <Markdown
                               remarkPlugins={[remarkGfm]}
                               components={MarkDownComponent}
@@ -553,7 +555,7 @@ const Chat = () => {
             {isLoading && (
               <div className="py-10 bg-background">
                 <div className="max-w-5xl px-6 mx-auto">
-                  <div className="flex flex-col xsm:flex-row space-y-4 xsm:space-y-0 xsm:space-x-4">
+                  <div className="flex flex-col space-y-4 xsm:flex-row xsm:space-y-0 xsm:space-x-4">
                     <div className="flex w-16 xsm:max-w-[60px] xsm:w-full">
                       <div>
                         <img
@@ -604,7 +606,7 @@ const Chat = () => {
                         </div>
                       )}
 
-                      <div className="flex flex-col w-full xsm:px-4 prose-sm prose xsm:prose-base text-muted max-w-none prose-a:text-link marker:text-muted prose-strong:text-muted">
+                      <div className="flex flex-col w-full prose-sm prose xsm:px-4 xsm:prose-base text-muted max-w-none prose-a:text-link marker:text-muted prose-strong:text-muted">
                         <Markdown
                           remarkPlugins={[remarkGfm]}
                           components={MarkDownComponent}
