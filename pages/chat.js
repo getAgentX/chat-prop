@@ -68,8 +68,7 @@ const Chat = () => {
   }, [history, responseStream, thoughts]);
 
   const getActiveAppInfo = async () => {
-
-    const apiUrl = `/api/app-info?id=${activeAppRunID}`;
+    const apiUrl = `/api/app-info/?id=${activeAppRunID}`;
 
     const response = await axios.get(apiUrl, {
       headers: {
@@ -248,13 +247,9 @@ const Chat = () => {
         <div className="w-full max-w-5xl mx-auto">
           <nav className="flex items-center justify-between">
             <Link href="/" className="flex items-center space-x-3">
-              <div
-               className="text-xl font-medium tracking-wide text-muted"
-              >
+              <div className="text-xl font-medium tracking-wide text-muted">
                 Chat-Prop
               </div>
-
-          
             </Link>
 
             <div className="flex items-center space-x-4">
