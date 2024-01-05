@@ -312,7 +312,10 @@ const Chat = () => {
                 )}
               </div>
 
-              <button className="flex items-center justify-center px-4 py-2 space-x-2 text-sm font-medium transition-all duration-300 rounded-lg bg-secondary hover:bg-secondary-foreground hover:scale-105">
+              <button
+                className="flex items-center justify-center px-4 py-2 space-x-2 text-sm font-medium transition-all duration-300 rounded-lg bg-secondary hover:bg-secondary-foreground hover:scale-105"
+                onClick={handleRefresh}
+              >
                 <span>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -330,10 +333,7 @@ const Chat = () => {
                   </svg>
                 </span>
 
-                <span
-                  className="hidden text-base font-normal tracking-wide text-accent-foreground xsm:block"
-                  onClick={handleRefresh}
-                >
+                <span className="hidden text-base font-normal tracking-wide text-accent-foreground xsm:block">
                   Refresh
                 </span>
               </button>
@@ -427,9 +427,9 @@ const Chat = () => {
 
               if (name === "bot") {
                 return (
-                  <div className="py-12 bg-background" key={index}>
+                  <div className="py-10 bg-background" key={index}>
                     <div className="max-w-5xl px-4 mx-auto">
-                      <div className="flex space-x-4">
+                      <div className="flex flex-col xsm:flex-row space-y-4 xsm:space-y-0 xsm:space-x-4">
                         <div className="flex w-16 xsm:max-w-[60px] xsm:w-full">
                           <div>
                             <img
@@ -446,7 +446,7 @@ const Chat = () => {
 
                         <div className="flex flex-col w-full space-y-6">
                           {thoughts.length > 0 && (
-                            <div className="pt-1.5 pb-4 pl-8">
+                            <div className="pt-1.5 pb-4 pl-4 xsm:pl-8">
                               <ol className="relative flex flex-col text-muted border-border border-s [&>*:last-child]:mb-0">
                                 {thoughts.map((thought, index) => {
                                   return (
@@ -462,7 +462,7 @@ const Chat = () => {
                             </div>
                           )}
 
-                          <div className="px-4 prose-sm prose text-muted xsm:prose-base prose-a:text-link prose-strong:text-muted marker:text-muted max-w-none">
+                          <div className="xsm:px-4 prose-sm prose text-muted xsm:prose-base prose-a:text-link prose-strong:text-muted marker:text-muted max-w-none">
                             <Markdown
                               remarkPlugins={[remarkGfm]}
                               components={MarkDownComponent}
@@ -551,9 +551,9 @@ const Chat = () => {
             })}
 
             {isLoading && (
-              <div className="py-12 bg-background">
+              <div className="py-10 bg-background">
                 <div className="max-w-5xl px-6 mx-auto">
-                  <div className="flex space-x-2">
+                  <div className="flex flex-col xsm:flex-row space-y-4 xsm:space-y-0 xsm:space-x-4">
                     <div className="flex w-16 xsm:max-w-[60px] xsm:w-full">
                       <div>
                         <img
@@ -585,7 +585,7 @@ const Chat = () => {
                       )}
 
                       {thoughts.length > 0 && (
-                        <div className="pb-4 pl-8 pt-1.5">
+                        <div className="pt-1.5 pb-4 pl-4 xsm:pl-8">
                           <ol className="relative flex flex-col text-muted border-border border-s [&>*:last-child]:mb-0">
                             {thoughts.map((thought, index) => {
                               return (
@@ -604,7 +604,7 @@ const Chat = () => {
                         </div>
                       )}
 
-                      <div className="flex flex-col w-full px-4 prose-sm prose xsm:prose-base text-muted max-w-none prose-a:text-link marker:text-muted prose-strong:text-muted">
+                      <div className="flex flex-col w-full xsm:px-4 prose-sm prose xsm:prose-base text-muted max-w-none prose-a:text-link marker:text-muted prose-strong:text-muted">
                         <Markdown
                           remarkPlugins={[remarkGfm]}
                           components={MarkDownComponent}
