@@ -158,9 +158,17 @@ const Chat = () => {
 
             // event.data.extra_identifiers.tool_name
 
-            if (event.event == "app_run_created") {
-              setActiveAppRunID(event.data.id);
+            if (
+              activeAppRunID === null &&
+              event.data.extra_identifiers.app_run_id
+            ) {
+              setActiveAppRunID(event.data.extra_identifiers.app_run_id);
             }
+
+            // if (event.event == "app_run_created") {
+            //   console.log("here is the id", event.data.id);
+            //   setActiveAppRunID(event.data.id);
+            // }
 
             if (event.event == "app_run_response_token") {
               setResponseStream((prev) => [...prev, event.data.token]);

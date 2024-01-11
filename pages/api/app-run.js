@@ -1,6 +1,14 @@
 // pages/api/app-run.js
 
 export default async function handler(req, res) {
+  if (req.method === "OPTIONS") {
+    res.status(200).end();
+    return;
+  }
+
+  res.setHeader("Transfer-Encoding", "chunked");
+  res.setHeader("Connection", "keep-alive");
+
   try {
     const apiUrl = `${process.env.API_URL}app/${process.env.API_ID}/run/`;
     const response = await fetch(apiUrl, {
