@@ -156,8 +156,7 @@ const Chat = () => {
                 return [...uniqueThoughts];
               });
             }
-
-            // event.data.extra_identifiers.tool_name
+        
 
             if (
               activeAppRunID === null &&

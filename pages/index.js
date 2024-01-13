@@ -4,7 +4,7 @@ import { ThemeContext } from "./_app";
 import HomeData from "@/data/Home.json";
 
 const Home = () => {
-  const { theme, handleTheme } = useContext(ThemeContext);
+  const { theme } = useContext(ThemeContext);
 
   return (
     <>
@@ -33,7 +33,7 @@ const Home = () => {
                   <h1 className="text-3xl font-bold text-accent">
                     {HomeData.title}
                   </h1>
-                  
+
                   <p className="text-base font-normal leading-8 text-accent">
                     {HomeData.sub_title}
                   </p>
