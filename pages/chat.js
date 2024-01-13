@@ -93,6 +93,7 @@ const Chat = () => {
     setRefetch(false);
     setResponseStream([]);
     setThoughts([]);
+    setActiveAppRunID(null);
   };
 
   const fetchData = async (data) => {
