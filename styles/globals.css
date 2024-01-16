@@ -108,3 +108,32 @@ body::-webkit-scrollbar-thumb:hover {
   background-color: rgba(0, 0, 0, 0.8);
   backdrop-filter: blur(8px);
 }
+
+.ecIkKa {
+  background-color: var(--background) !important;
+  border-color: var(--border) !important;
+  color: var(--accent) !important;
+  border-radius: 10px;
+}
+
+.hqLZYy {
+  background-color: var(--foreground) !important;
+}
+
+.fwRmGd {
+  background-color: var(--foreground) !important;
+}
+
+.hsVfFv {
+  background-color: var(--foreground) !important;
+}
+
+.react_tinylink_card_content_header_description,
+.react_tinylink_card_content,
+.react_tinylink_card_footer_description {
+  overflow: hidden !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 1 !important; /* number of lines to show */
+  line-clamp: 1 !important;
+  -webkit-box-orient: vertical !important;
+}

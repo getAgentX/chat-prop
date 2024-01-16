@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
-import { ThoughtCard, TrendingSidebar } from "@/components";
-import InfoData from "@/data/ChatDefault.json";
+import { ThoughtCard, TrendingSidebar, ReactTiny } from "@/components";
 import axios from "axios";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -12,6 +11,8 @@ import { ThemeContext } from "./_app";
 import toast from "react-hot-toast";
 import Link from "next/link";
 import { createSSEWithPost } from "@/utils/sse";
+import { useRouter } from "next/router";
+import llmateConfig from "@/llmate.cofig";
 
 const Chat = () => {
   const [prompt, setPrompt] = useState("");
@@ -27,15 +28,32 @@ const Chat = () => {
   const [thoughts, setThoughts] = useState([]);
   const [createdChatId, setCreatedChatId] = useState(null);
   const [loadingState, setLoadingState] = useState(false);
+  const [slug, setSlug] = useState(null);
+  const [infoData, setInfoData] = useState(null);
+  const [dataLoading, setDataLoading] = useState(true);
 
   const { setIsFeedbackOpen, setMessageId } = useFeedbackContext();
 
   const { theme, handleTheme } = useContext(ThemeContext);
 
   const scrollRef = useRef();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (router.query.chat) {
+      setSlug(router.query.chat);
+
+      const chatPropObject = llmateConfig.apps.find(
+        (app) => app.slug === router.query.chat
+      );
+
+      setInfoData(chatPropObject);
+      setDataLoading(false);
+    }
+  }, [router]);
 
   const handleCreateChat = async () => {
-    const apiUrl = "/api/create-chat";
+    const apiUrl = `/api/create-chat/${slug}`;
 
     const chatResponse = await axios.post(
       apiUrl,
@@ -51,8 +69,10 @@ const Chat = () => {
   };
 
   useEffect(() => {
-    handleCreateChat();
-  }, []);
+    if (slug) {
+      handleCreateChat();
+    }
+  }, [slug]);
 
   useEffect(() => {
     if (isFirstRender) {
@@ -67,8 +87,27 @@ const Chat = () => {
     scrollRef.current?.scrollIntoView(scrollOptions);
   }, [history, responseStream, thoughts]);
 
+  // const extractLinks = (text) => {
+  //   const urlRegex = /(https?:\/\/[^\s)]+)/g;
+  //   const matches = text.match(urlRegex);
+  //   return matches || [];
+  // };
+
+  const extractLinks = (text) => {
+    const linkRegex = /\[([^]+?)\]\((https?:\/\/[^\s)]+)\)/g;
+    const matches = [];
+
+    let match;
+    while ((match = linkRegex.exec(text)) !== null) {
+      const [, name, link] = match;
+      matches.push({ name, link });
+    }
+
+    return matches;
+  };
+
   const getActiveAppInfo = async () => {
-    const apiUrl = `/api/app-info/?id=${activeAppRunID}`;
+    const apiUrl = `/api/app-info/${slug}/?id=${activeAppRunID}`;
 
     const response = await axios.get(apiUrl, {
       headers: {
@@ -80,11 +119,14 @@ const Chat = () => {
     const messageId = response?.data?.message_id;
 
     if (responseData) {
+      const linksArray = extractLinks(responseData);
+
       const queryData = {
         messageId: messageId,
         name: "bot",
         value: responseData,
         thoughts: [...thoughts],
+        links: linksArray,
       };
 
       setHistory((prev) => [...prev, queryData]);
@@ -106,6 +148,7 @@ const Chat = () => {
       name: "user",
       value: data,
       thoughts: [],
+      links: [],
     };
 
     setHistory((prev) => [...prev, queryData]);
@@ -116,7 +159,7 @@ const Chat = () => {
       app_run_type: "CHAT",
     };
 
-    const apiUrl = "/api/app-run/";
+    const apiUrl = `/api/app-run/${slug}`;
 
     const sse = await createSSEWithPost(apiUrl, {
       method: "POST",
@@ -156,7 +199,6 @@ const Chat = () => {
                 return [...uniqueThoughts];
               });
             }
-        
 
             if (
               activeAppRunID === null &&
@@ -217,7 +259,7 @@ const Chat = () => {
   };
 
   const handleReaction = async (id, data) => {
-    const apiUrl = `/api/reaction`;
+    const apiUrl = `/api/reaction/${slug}`;
 
     const response = await axios.put(
       apiUrl,
@@ -250,14 +292,40 @@ const Chat = () => {
     }
   };
 
+  if (dataLoading) {
+    return (
+      <div className="flex items-center justify-center w-full min-h-screen">
+        <div role="status">
+          <svg
+            aria-hidden="true"
+            className="w-8 h-8 text-gray-200 animate-spin fill-blue-600"
+            viewBox="0 0 100 101"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+              fill="currentColor"
+            />
+            <path
+              d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+              fill="currentFill"
+            />
+          </svg>
+          <span className="sr-only">Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="relative flex flex-col min-h-[100dvh] h-full bg-background">
       <div className="sticky top-0 left-0 z-40 w-full px-4 py-4 border-b bg-background border-border">
         <div className="w-full max-w-5xl mx-auto">
           <nav className="flex items-center justify-between">
             <Link href="/" className="flex items-center space-x-3">
-              <div className="text-xl font-medium tracking-wide text-muted">
-                Chat-Prop
+              <div className="text-xl font-medium tracking-wide capitalize text-muted">
+                {infoData.name}
               </div>
             </Link>
 
@@ -362,8 +430,8 @@ const Chat = () => {
                     <img
                       src={
                         theme === "dark"
-                          ? "/images/bot-dark.png"
-                          : "/images/bot.png"
+                          ? infoData?.images?.botdark
+                          : infoData?.images?.bot
                       }
                       alt="bot icon"
                       className="w-8 rounded-full xsm:w-full aspect-square"
@@ -373,7 +441,7 @@ const Chat = () => {
 
                 <div className="flex flex-col w-full space-y-6">
                   <div className="flex flex-col space-y-6">
-                    {InfoData.default_info.paragraph.map((paragraph, index) => {
+                    {infoData?.defaultMessage.map((paragraph, index) => {
                       return (
                         <p
                           className="text-sm font-normal leading-7 xsm:text-base text-muted"
@@ -386,7 +454,7 @@ const Chat = () => {
                   </div>
 
                   <div className="flex flex-wrap gap-y-4">
-                    {InfoData.default_questions.map((question, index) => {
+                    {infoData?.defaultQuestions.map((question, index) => {
                       return (
                         <div
                           className="flex items-center px-4 py-4 mr-4 text-sm font-normal transition-all duration-300 border rounded-md cursor-pointer xsm:text-base bg-background hover:bg-foreground text-muted border-border"
@@ -404,90 +472,140 @@ const Chat = () => {
           </div>
 
           <div className="pb-16 xsm:pb-32">
-            {history?.map(({ messageId, name, value, thoughts }, index) => {
-              if (name === "user") {
-                return (
-                  <div className="py-8 bg-hover" key={index}>
-                    <div className="max-w-5xl px-4 mx-auto">
-                      <div className="flex justify-end space-x-4">
-                        <div className="flex items-center">
-                          <p className="w-full text-sm font-normal leading-7 xsm:text-base text-muted">
-                            {value}
-                          </p>
-                        </div>
+            {history?.map(
+              ({ messageId, name, value, thoughts, links }, index) => {
+                if (name === "user") {
+                  return (
+                    <div className="py-8 bg-hover" key={index}>
+                      <div className="max-w-5xl px-4 mx-auto">
+                        <div className="flex justify-end space-x-4">
+                          <div className="flex items-center">
+                            <p className="w-full text-sm font-normal leading-7 xsm:text-base text-muted">
+                              {value}
+                            </p>
+                          </div>
 
-                        <div className="flex w-16 xsm:max-w-[60px] xsm:w-full">
-                          <div>
-                            <img
-                              src={
-                                theme === "dark"
-                                  ? "/images/user-dark.svg"
-                                  : "/images/user.svg"
-                              }
-                              alt="bot icon"
-                              className="w-8 rounded-full xsm:w-full aspect-square"
-                            />
+                          <div className="flex w-16 xsm:max-w-[60px] xsm:w-full">
+                            <div>
+                              <img
+                                src={
+                                  theme === "dark"
+                                    ? infoData.images.userdark
+                                    : infoData.images.user
+                                }
+                                alt="bot icon"
+                                className="w-8 rounded-full xsm:w-full aspect-square"
+                              />
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                );
-              }
+                  );
+                }
 
-              if (name === "bot") {
-                return (
-                  <div className="py-10 bg-background" key={index}>
-                    <div className="max-w-5xl px-4 mx-auto">
-                      <div className="flex flex-col space-y-4 xsm:flex-row xsm:space-y-0 xsm:space-x-4">
-                        <div className="flex w-16 xsm:max-w-[60px] xsm:w-full">
-                          <div>
-                            <img
-                              src={
-                                theme === "dark"
-                                  ? "/images/bot-dark.png"
-                                  : "/images/bot.png"
-                              }
-                              alt="bot icon"
-                              className="w-8 rounded-full xsm:w-full aspect-square"
-                            />
-                          </div>
-                        </div>
-
-                        <div className="flex flex-col w-full space-y-6">
-                          {thoughts.length > 0 && (
-                            <div className="pt-1.5 pb-4 pl-4 xsm:pl-8">
-                              <ol className="relative flex flex-col text-muted border-border border-s [&>*:last-child]:mb-0">
-                                {thoughts.map((thought, index) => {
-                                  return (
-                                    <ThoughtCard
-                                      name={thought}
-                                      theme={theme}
-                                      key={index}
-                                      loading={false}
-                                    />
-                                  );
-                                })}
-                              </ol>
+                if (name === "bot") {
+                  return (
+                    <div className="py-10 bg-background" key={index}>
+                      <div className="max-w-5xl px-4 mx-auto">
+                        <div className="flex flex-col space-y-4 xsm:flex-row xsm:space-y-0 xsm:space-x-4">
+                          <div className="flex w-16 xsm:max-w-[60px] xsm:w-full">
+                            <div>
+                              <img
+                                src={
+                                  theme === "dark"
+                                    ? infoData?.images?.botdark
+                                    : infoData?.images?.bot
+                                }
+                                alt="bot icon"
+                                className="w-8 rounded-full xsm:w-full aspect-square"
+                              />
                             </div>
-                          )}
-
-                          <div className="prose-sm prose xsm:px-4 text-muted xsm:prose-base prose-a:text-link prose-strong:text-muted marker:text-muted max-w-none">
-                            <Markdown
-                              remarkPlugins={[remarkGfm]}
-                              components={MarkDownComponent}
-                            >
-                              {value}
-                            </Markdown>
                           </div>
 
-                          <div className="flex items-center justify-between pt-4">
-                            <CopyToClipboard
-                              text={value}
-                              onCopy={() => handleCopy()}
-                            >
-                              <button className="hover:bg-foreground transition-all duration-300 px-4 py-2.5 text-base border rounded-lg font-normal text-muted border-border flex items-center space-x-2">
-                                <span>{copyLoader ? "Copied" : "Copy"}</span>
+                          <div className="flex flex-col w-full space-y-6">
+                            {thoughts.length > 0 && (
+                              <div className="pt-1.5 pb-4 pl-4 xsm:pl-8">
+                                <ol className="relative flex flex-col text-muted border-border border-s [&>*:last-child]:mb-0">
+                                  {thoughts.map((thought, index) => {
+                                    return (
+                                      <ThoughtCard
+                                        name={thought}
+                                        theme={theme}
+                                        key={index}
+                                        loading={false}
+                                      />
+                                    );
+                                  })}
+                                </ol>
+                              </div>
+                            )}
+
+                            <div className="prose-sm prose xsm:px-4 text-muted xsm:prose-base prose-a:text-link prose-strong:text-muted marker:text-muted max-w-none">
+                              <Markdown
+                                remarkPlugins={[remarkGfm]}
+                                components={MarkDownComponent}
+                              >
+                                {value}
+                              </Markdown>
+                            </div>
+
+                            {links.length > 0 && (
+                              <div className="grid grid-cols-2 gap-4 md:py-10">
+                                {links.map(({ link, name }) => {
+                                  return <ReactTiny url={link} key={link} />;
+                                })}
+                              </div>
+                            )}
+
+                            <div className="flex items-center justify-between pt-4">
+                              <CopyToClipboard
+                                text={value}
+                                onCopy={() => handleCopy()}
+                              >
+                                <button className="hover:bg-foreground transition-all duration-300 px-4 py-2.5 text-base border rounded-lg font-normal text-muted border-border flex items-center space-x-2">
+                                  <span>{copyLoader ? "Copied" : "Copy"}</span>
+
+                                  <span className="flex items-center justify-center">
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                      strokeWidth={1.5}
+                                      stroke="currentColor"
+                                      className="w-5 h-5 text-muted"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5a3.375 3.375 0 00-3.375-3.375H9.75"
+                                      />
+                                    </svg>
+                                  </span>
+                                </button>
+                              </CopyToClipboard>
+
+                              <div className="flex items-center space-x-4">
+                                <span className="flex items-center justify-center">
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    strokeWidth={1.5}
+                                    stroke="currentColor"
+                                    dataSlot="icon"
+                                    className="w-5 h-5 border-none outline-none cursor-pointer text-muted-foreground hover:text-muted"
+                                    data-tooltip-id="tooltip"
+                                    data-tooltip-content="Like"
+                                    onClick={() => handleReaction(messageId, 1)}
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      d="M6.633 10.25c.806 0 1.533-.446 2.031-1.08a9.041 9.041 0 0 1 2.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 0 0 .322-1.672V2.75a.75.75 0 0 1 .75-.75 2.25 2.25 0 0 1 2.25 2.25c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282m0 0h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 0 1-2.649 7.521c-.388.482-.987.729-1.605.729H13.48c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 0 0-1.423-.23H5.904m10.598-9.75H14.25M5.904 18.5c.083.205.173.405.27.602.197.4-.078.898-.523.898h-.908c-.889 0-1.713-.518-1.972-1.368a12 12 0 0 1-.521-3.507c0-1.553.295-3.036.831-4.398C3.387 9.953 4.167 9.5 5 9.5h1.053c.472 0 .745.556.5.96a8.958 8.958 0 0 0-1.302 4.665c0 1.194.232 2.333.654 3.375Z"
+                                    />
+                                  </svg>
+                                </span>
 
                                 <span className="flex items-center justify-center">
                                   <svg
@@ -496,69 +614,29 @@ const Chat = () => {
                                     viewBox="0 0 24 24"
                                     strokeWidth={1.5}
                                     stroke="currentColor"
-                                    className="w-5 h-5 text-muted"
+                                    dataSlot="icon"
+                                    className="w-5 h-5 border-none outline-none cursor-pointer text-muted-foreground hover:text-muted"
+                                    data-tooltip-id="tooltip"
+                                    data-tooltip-content="Dislike"
+                                    onClick={() => handleReaction(messageId, 0)}
                                   >
                                     <path
                                       strokeLinecap="round"
                                       strokeLinejoin="round"
-                                      d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5a3.375 3.375 0 00-3.375-3.375H9.75"
+                                      d="M7.498 15.25H4.372c-1.026 0-1.945-.694-2.054-1.715a12.137 12.137 0 0 1-.068-1.285c0-2.848.992-5.464 2.649-7.521C5.287 4.247 5.886 4 6.504 4h4.016a4.5 4.5 0 0 1 1.423.23l3.114 1.04a4.5 4.5 0 0 0 1.423.23h1.294M7.498 15.25c.618 0 .991.724.725 1.282A7.471 7.471 0 0 0 7.5 19.75 2.25 2.25 0 0 0 9.75 22a.75.75 0 0 0 .75-.75v-.633c0-.573.11-1.14.322-1.672.304-.76.93-1.33 1.653-1.715a9.04 9.04 0 0 0 2.86-2.4c.498-.634 1.226-1.08 2.032-1.08h.384m-10.253 1.5H9.7m8.075-9.75c.01.05.027.1.05.148.593 1.2.925 2.55.925 3.977 0 1.487-.36 2.89-.999 4.125m.023-8.25c-.076-.365.183-.75.575-.75h.908c.889 0 1.713.518 1.972 1.368.339 1.11.521 2.287.521 3.507 0 1.553-.295 3.036-.831 4.398-.306.774-1.086 1.227-1.918 1.227h-1.053c-.472 0-.745-.556-.5-.96a8.95 8.95 0 0 0 .303-.54"
                                     />
                                   </svg>
                                 </span>
-                              </button>
-                            </CopyToClipboard>
-
-                            <div className="flex items-center space-x-4">
-                              <span className="flex items-center justify-center">
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  fill="none"
-                                  viewBox="0 0 24 24"
-                                  strokeWidth={1.5}
-                                  stroke="currentColor"
-                                  dataSlot="icon"
-                                  className="w-5 h-5 border-none outline-none cursor-pointer text-muted-foreground hover:text-muted"
-                                  data-tooltip-id="tooltip"
-                                  data-tooltip-content="Like"
-                                  onClick={() => handleReaction(messageId, 1)}
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M6.633 10.25c.806 0 1.533-.446 2.031-1.08a9.041 9.041 0 0 1 2.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 0 0 .322-1.672V2.75a.75.75 0 0 1 .75-.75 2.25 2.25 0 0 1 2.25 2.25c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282m0 0h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 0 1-2.649 7.521c-.388.482-.987.729-1.605.729H13.48c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 0 0-1.423-.23H5.904m10.598-9.75H14.25M5.904 18.5c.083.205.173.405.27.602.197.4-.078.898-.523.898h-.908c-.889 0-1.713-.518-1.972-1.368a12 12 0 0 1-.521-3.507c0-1.553.295-3.036.831-4.398C3.387 9.953 4.167 9.5 5 9.5h1.053c.472 0 .745.556.5.96a8.958 8.958 0 0 0-1.302 4.665c0 1.194.232 2.333.654 3.375Z"
-                                  />
-                                </svg>
-                              </span>
-
-                              <span className="flex items-center justify-center">
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  fill="none"
-                                  viewBox="0 0 24 24"
-                                  strokeWidth={1.5}
-                                  stroke="currentColor"
-                                  dataSlot="icon"
-                                  className="w-5 h-5 border-none outline-none cursor-pointer text-muted-foreground hover:text-muted"
-                                  data-tooltip-id="tooltip"
-                                  data-tooltip-content="Dislike"
-                                  onClick={() => handleReaction(messageId, 0)}
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M7.498 15.25H4.372c-1.026 0-1.945-.694-2.054-1.715a12.137 12.137 0 0 1-.068-1.285c0-2.848.992-5.464 2.649-7.521C5.287 4.247 5.886 4 6.504 4h4.016a4.5 4.5 0 0 1 1.423.23l3.114 1.04a4.5 4.5 0 0 0 1.423.23h1.294M7.498 15.25c.618 0 .991.724.725 1.282A7.471 7.471 0 0 0 7.5 19.75 2.25 2.25 0 0 0 9.75 22a.75.75 0 0 0 .75-.75v-.633c0-.573.11-1.14.322-1.672.304-.76.93-1.33 1.653-1.715a9.04 9.04 0 0 0 2.86-2.4c.498-.634 1.226-1.08 2.032-1.08h.384m-10.253 1.5H9.7m8.075-9.75c.01.05.027.1.05.148.593 1.2.925 2.55.925 3.977 0 1.487-.36 2.89-.999 4.125m.023-8.25c-.076-.365.183-.75.575-.75h.908c.889 0 1.713.518 1.972 1.368.339 1.11.521 2.287.521 3.507 0 1.553-.295 3.036-.831 4.398-.306.774-1.086 1.227-1.918 1.227h-1.053c-.472 0-.745-.556-.5-.96a8.95 8.95 0 0 0 .303-.54"
-                                  />
-                                </svg>
-                              </span>
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                );
+                  );
+                }
               }
-            })}
+            )}
 
             {isLoading && (
               <div className="py-10 bg-background">
@@ -569,8 +647,8 @@ const Chat = () => {
                         <img
                           src={
                             theme === "dark"
-                              ? "/images/bot-dark.png"
-                              : "/images/bot.png"
+                              ? infoData?.images?.botdark
+                              : infoData?.images?.bot
                           }
                           alt="bot icon"
                           className="w-8 rounded-full xsm:w-full aspect-square"
@@ -691,9 +769,10 @@ const Chat = () => {
         isSidebarOpen={isSidebarOpen}
         setIsSidebarOpen={setIsSidebarOpen}
         fetchData={fetchData}
+        slug={slug}
       />
 
-      <FeedbackModal />
+      <FeedbackModal slug={slug} />
     </div>
   );
 };
