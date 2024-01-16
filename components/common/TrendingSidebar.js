@@ -1,7 +1,14 @@
 import React from "react";
-import InfoData from "@/data/SidebarQuestions.json";
+import llmateConfig from "@/llmate.cofig";
 
-const TrendingSidebar = ({ isSidebarOpen, setIsSidebarOpen, fetchData }) => {
+const TrendingSidebar = ({
+  isSidebarOpen,
+  setIsSidebarOpen,
+  fetchData,
+  slug,
+}) => {
+  const chatObject = llmateConfig.apps.find((app) => app.slug === slug);
+
   return (
     <div
       className={`fixed top-0 bottom-0 max-w-sm w-full border-r border-border flex flex-col bg-background space-y-8 transition-all duration-500 z-50 ${
@@ -10,7 +17,7 @@ const TrendingSidebar = ({ isSidebarOpen, setIsSidebarOpen, fetchData }) => {
     >
       <div>
         <div className="flex items-center justify-end p-4">
-          <span className="flex justify-center items-center">
+          <span className="flex items-center justify-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -29,9 +36,9 @@ const TrendingSidebar = ({ isSidebarOpen, setIsSidebarOpen, fetchData }) => {
           </span>
         </div>
 
-        <div className="flex items-center space-x-4 px-6">
+        <div className="flex items-center px-6 space-x-4">
           <div>
-            <span className="flex justify-center items-center w-12 aspect-square rounded-full bg-primary">
+            <span className="flex items-center justify-center w-12 rounded-full aspect-square bg-primary">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
@@ -47,17 +54,17 @@ const TrendingSidebar = ({ isSidebarOpen, setIsSidebarOpen, fetchData }) => {
             </span>
           </div>
 
-          <h3 className="text-accent font-semibold text-xl pr-4">
+          <h3 className="pr-4 text-xl font-semibold text-accent">
             What others are asking?
           </h3>
         </div>
       </div>
 
-      <ul className="h-full text-base font-normal overflow-x-hidden overflow-y-auto text-muted scroll__bar">
-        {InfoData.default_questions.map((questions, index) => {
+      <ul className="h-full overflow-x-hidden overflow-y-auto text-base font-normal text-muted scroll__bar">
+        {chatObject?.trendingQuestions?.map((questions, index) => {
           return (
             <li
-              className="py-6 px-6 odd:bg-hover even:bg-transparent cursor-pointer"
+              className="px-6 py-6 cursor-pointer odd:bg-hover even:bg-transparent"
               key={index}
               onClick={() => fetchData(questions)}
             >

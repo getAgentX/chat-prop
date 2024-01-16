@@ -1,8 +1,13 @@
 // pages/api/reaction.js
 
 import axios from "axios";
+import llmateConfig from "@/llmate.cofig";
 
 export default async function handler(req, res) {
+  const { slug } = req.query;
+
+  const chatPropObject = llmateConfig.apps.find((app) => app.slug === slug);
+
   const { id, data } = req.body;
 
   const apiUrl = `${process.env.API_URL}chat/message/${id}/reaction/`;
@@ -15,7 +20,7 @@ export default async function handler(req, res) {
     const response = await axios.put(apiUrl, payload, {
       headers: {
         "Content-Type": "application/json",
-        "X-API-KEY": process.env.API_KEY,
+        "X-API-KEY": chatPropObject.api_key,
       },
     });
 

@@ -1,6 +1,11 @@
 // pages/api/app-run.js
+import llmateConfig from "@/llmate.cofig";
 
 export default async function handler(req, res) {
+  const { slug } = req.query;
+
+  const chatPropObject = llmateConfig.apps.find((app) => app.slug === slug);
+
   if (req.method === "OPTIONS") {
     res.status(200).end();
     return;
@@ -10,12 +15,12 @@ export default async function handler(req, res) {
   res.setHeader("Connection", "keep-alive");
 
   try {
-    const apiUrl = `${process.env.API_URL}app/${process.env.API_ID}/run/`;
+    const apiUrl = `${process.env.API_URL}app/${chatPropObject.app_id}/run/`;
     const response = await fetch(apiUrl, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-API-KEY": process.env.API_KEY,
+        "X-API-KEY": chatPropObject.api_key,
       },
       body: JSON.stringify(req.body),
     });

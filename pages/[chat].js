@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
 import { ThoughtCard, TrendingSidebar, ReactTiny } from "@/components";
-import InfoData from "@/data/ChatDefault.json";
 import axios from "axios";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -12,13 +11,8 @@ import { ThemeContext } from "./_app";
 import toast from "react-hot-toast";
 import Link from "next/link";
 import { createSSEWithPost } from "@/utils/sse";
-import dynamic from "next/dynamic";
-const ReactTinyLink = dynamic(
-  () => {
-    return import("react-tiny-link").then((mod) => mod.ReactTinyLink);
-  },
-  { ssr: false }
-);
+import { useRouter } from "next/router";
+import llmateConfig from "@/llmate.cofig";
 
 const Chat = () => {
   const [prompt, setPrompt] = useState("");
@@ -34,15 +28,32 @@ const Chat = () => {
   const [thoughts, setThoughts] = useState([]);
   const [createdChatId, setCreatedChatId] = useState(null);
   const [loadingState, setLoadingState] = useState(false);
+  const [slug, setSlug] = useState(null);
+  const [infoData, setInfoData] = useState(null);
+  const [dataLoading, setDataLoading] = useState(true);
 
   const { setIsFeedbackOpen, setMessageId } = useFeedbackContext();
 
   const { theme, handleTheme } = useContext(ThemeContext);
 
   const scrollRef = useRef();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (router.query.chat) {
+      setSlug(router.query.chat);
+
+      const chatPropObject = llmateConfig.apps.find(
+        (app) => app.slug === router.query.chat
+      );
+
+      setInfoData(chatPropObject);
+      setDataLoading(false);
+    }
+  }, [router]);
 
   const handleCreateChat = async () => {
-    const apiUrl = "/api/create-chat";
+    const apiUrl = `/api/create-chat/${slug}`;
 
     const chatResponse = await axios.post(
       apiUrl,
@@ -58,8 +69,10 @@ const Chat = () => {
   };
 
   useEffect(() => {
-    handleCreateChat();
-  }, []);
+    if (slug) {
+      handleCreateChat();
+    }
+  }, [slug]);
 
   useEffect(() => {
     if (isFirstRender) {
@@ -94,7 +107,7 @@ const Chat = () => {
   };
 
   const getActiveAppInfo = async () => {
-    const apiUrl = `/api/app-info/?id=${activeAppRunID}`;
+    const apiUrl = `/api/app-info/${slug}/?id=${activeAppRunID}`;
 
     const response = await axios.get(apiUrl, {
       headers: {
@@ -146,7 +159,7 @@ const Chat = () => {
       app_run_type: "CHAT",
     };
 
-    const apiUrl = "/api/app-run/";
+    const apiUrl = `/api/app-run/${slug}`;
 
     const sse = await createSSEWithPost(apiUrl, {
       method: "POST",
@@ -246,7 +259,7 @@ const Chat = () => {
   };
 
   const handleReaction = async (id, data) => {
-    const apiUrl = `/api/reaction`;
+    const apiUrl = `/api/reaction/${slug}`;
 
     const response = await axios.put(
       apiUrl,
@@ -279,14 +292,40 @@ const Chat = () => {
     }
   };
 
+  if (dataLoading) {
+    return (
+      <div className="flex items-center justify-center w-full min-h-screen">
+        <div role="status">
+          <svg
+            aria-hidden="true"
+            className="w-8 h-8 text-gray-200 animate-spin fill-blue-600"
+            viewBox="0 0 100 101"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+              fill="currentColor"
+            />
+            <path
+              d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+              fill="currentFill"
+            />
+          </svg>
+          <span className="sr-only">Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="relative flex flex-col min-h-[100dvh] h-full bg-background">
       <div className="sticky top-0 left-0 z-40 w-full px-4 py-4 border-b bg-background border-border">
         <div className="w-full max-w-5xl mx-auto">
           <nav className="flex items-center justify-between">
             <Link href="/" className="flex items-center space-x-3">
-              <div className="text-xl font-medium tracking-wide text-muted">
-                Chat-Prop
+              <div className="text-xl font-medium tracking-wide capitalize text-muted">
+                {infoData.name}
               </div>
             </Link>
 
@@ -391,8 +430,8 @@ const Chat = () => {
                     <img
                       src={
                         theme === "dark"
-                          ? "/images/bot-dark.png"
-                          : "/images/bot.png"
+                          ? infoData?.images?.botdark
+                          : infoData?.images?.bot
                       }
                       alt="bot icon"
                       className="w-8 rounded-full xsm:w-full aspect-square"
@@ -402,7 +441,7 @@ const Chat = () => {
 
                 <div className="flex flex-col w-full space-y-6">
                   <div className="flex flex-col space-y-6">
-                    {InfoData.default_info.paragraph.map((paragraph, index) => {
+                    {infoData?.defaultMessage.map((paragraph, index) => {
                       return (
                         <p
                           className="text-sm font-normal leading-7 xsm:text-base text-muted"
@@ -415,7 +454,7 @@ const Chat = () => {
                   </div>
 
                   <div className="flex flex-wrap gap-y-4">
-                    {InfoData.default_questions.map((question, index) => {
+                    {infoData?.defaultQuestions.map((question, index) => {
                       return (
                         <div
                           className="flex items-center px-4 py-4 mr-4 text-sm font-normal transition-all duration-300 border rounded-md cursor-pointer xsm:text-base bg-background hover:bg-foreground text-muted border-border"
@@ -451,8 +490,8 @@ const Chat = () => {
                               <img
                                 src={
                                   theme === "dark"
-                                    ? "/images/user-dark.svg"
-                                    : "/images/user.svg"
+                                    ? infoData.images.userdark
+                                    : infoData.images.user
                                 }
                                 alt="bot icon"
                                 className="w-8 rounded-full xsm:w-full aspect-square"
@@ -475,8 +514,8 @@ const Chat = () => {
                               <img
                                 src={
                                   theme === "dark"
-                                    ? "/images/bot-dark.png"
-                                    : "/images/bot.png"
+                                    ? infoData?.images?.botdark
+                                    : infoData?.images?.bot
                                 }
                                 alt="bot icon"
                                 className="w-8 rounded-full xsm:w-full aspect-square"
@@ -512,7 +551,7 @@ const Chat = () => {
                             </div>
 
                             {links.length > 0 && (
-                              <div className="grid grid-cols-2 gap-4">
+                              <div className="grid grid-cols-2 gap-4 md:py-10">
                                 {links.map(({ link, name }) => {
                                   return <ReactTiny url={link} key={link} />;
                                 })}
@@ -608,8 +647,8 @@ const Chat = () => {
                         <img
                           src={
                             theme === "dark"
-                              ? "/images/bot-dark.png"
-                              : "/images/bot.png"
+                              ? infoData?.images?.botdark
+                              : infoData?.images?.bot
                           }
                           alt="bot icon"
                           className="w-8 rounded-full xsm:w-full aspect-square"
@@ -730,9 +769,10 @@ const Chat = () => {
         isSidebarOpen={isSidebarOpen}
         setIsSidebarOpen={setIsSidebarOpen}
         fetchData={fetchData}
+        slug={slug}
       />
 
-      <FeedbackModal />
+      <FeedbackModal slug={slug} />
     </div>
   );
 };

@@ -1,10 +1,12 @@
 import React, { useContext } from "react";
 import Link from "next/link";
 import { ThemeContext } from "./_app";
-import HomeData from "@/data/Home.json";
+import llmateConfig from "@/llmate.cofig";
 
 const Home = () => {
   const { theme } = useContext(ThemeContext);
+
+  const { home, apps } = llmateConfig;
 
   return (
     <>
@@ -15,13 +17,13 @@ const Home = () => {
               <div className="max-w-[170px] w-full">
                 {theme === "dark" ? (
                   <img
-                    src={HomeData.dark_logo}
+                    src={home.dark_logo}
                     alt="bot icon"
                     className="rounded-full w-72 aspect-square"
                   />
                 ) : (
                   <img
-                    src={HomeData.light_logo}
+                    src={home.light_logo}
                     alt="bot icon"
                     className="rounded-full w-72 aspect-square"
                   />
@@ -31,23 +33,23 @@ const Home = () => {
               <div className="flex flex-col items-start space-y-8">
                 <div className="space-y-6">
                   <h1 className="text-3xl font-bold text-accent">
-                    {HomeData.title}
+                    {home.title}
                   </h1>
 
                   <p className="text-base font-normal leading-8 text-accent">
-                    {HomeData.sub_title}
+                    {home.sub_title}
                   </p>
 
                   <p className="text-base font-normal text-accent">
-                    {HomeData.description}
+                    {home.description}
                   </p>
                 </div>
 
-                <Link
+                {/* <Link
                   href="/chat"
                   className="flex items-center justify-center px-6 py-4 space-x-2 text-sm font-medium transition-all duration-300 rounded-lg bg-secondary hover:bg-secondary-foreground text-accent-foreground"
                 >
-                  <span>{HomeData.button}</span>
+                  <span>{home.button}</span>
                   <span>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -64,7 +66,20 @@ const Home = () => {
                       />
                     </svg>
                   </span>
-                </Link>
+                </Link> */}
+
+                <div className="grid grid-cols-3 gap-4">
+                  {apps.map((app) => {
+                    return (
+                      <Link
+                        href={`/${app.slug}`}
+                        className="flex items-center justify-center px-6 py-4 text-sm font-medium transition-all duration-300 rounded-lg bg-secondary hover:bg-secondary-foreground text-accent-foreground"
+                      >
+                        {app.name}
+                      </Link>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           </div>

@@ -3,7 +3,7 @@ import { useFeedbackContext } from "@/context/FeedbackContext";
 import axios from "axios";
 import toast, { Toaster } from "react-hot-toast";
 
-const FeedbackModal = () => {
+const FeedbackModal = ({ slug }) => {
   const dropdownRef = useRef(null);
 
   const [feedbackValue, setFeedbackValue] = useState("");
@@ -25,7 +25,7 @@ const FeedbackModal = () => {
   }, []);
 
   const handleFeedback = async () => {
-    const proxyUrl = `/api/feedback`;
+    const proxyUrl = `/api/feedback/${slug}`;
 
     if (feedbackValue !== "") {
       const response = await axios.put(
