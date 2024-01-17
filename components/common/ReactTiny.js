@@ -34,7 +34,7 @@ const ReactTiny = ({ url }) => {
           maxLine={1}
           minLine={1}
           url={url}
-          proxyUrl={corsAnywhereUrl}
+          proxyUrl={"/api/cors?uri="}
           onSuccess={() => setIsLoading(false)}
         />
       </div>
