@@ -7,7 +7,7 @@ export default function Document() {
         <link rel="icon" type="image/x-icon" href="/favicon.ico" />
 
         <title>
-          ChatProp | Your AI personal assistant for finding your dream home
+          LLMate | Build your AI workforce customized to your needs. We provide the tools to build, train, and deploy your AI assistants.
         </title>
       </Head>
       <body>
