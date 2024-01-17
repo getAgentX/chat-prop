@@ -1,5 +1,5 @@
 // pages/api/app-run.js
-import llmateConfig from "@/llmate.cofig";
+import llmateConfig from "@/llmate.config";
 
 export default async function handler(req, res) {
   const { slug } = req.query;

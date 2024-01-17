@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import Link from "next/link";
 import { ThemeContext } from "./_app";
-import llmateConfig from "@/llmate.cofig";
+import llmateConfig from "@/llmate.config";
 
 const Home = () => {
   const { theme } = useContext(ThemeContext);

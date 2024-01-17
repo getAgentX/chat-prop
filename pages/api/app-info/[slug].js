@@ -1,7 +1,7 @@
 // pages/api/app-info.js
 
 import axios from "axios";
-import llmateConfig from "@/llmate.cofig";
+import llmateConfig from "@/llmate.config";
 
 export default async function handler(req, res) {
   const { slug } = req.query;

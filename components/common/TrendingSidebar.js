@@ -1,5 +1,5 @@
 import React from "react";
-import llmateConfig from "@/llmate.cofig";
+import llmateConfig from "@/llmate.config";
 
 const TrendingSidebar = ({
   isSidebarOpen,

@@ -33,7 +33,7 @@ const ReactTiny = ({ url }) => {
           showGraphic={true}
           maxLine={1}
           minLine={1}
-          url={url}
+          url={url.replace("http://", "https://").replace("https://", "")}
           proxyUrl={corsAnywhereUrl}
           onSuccess={() => setIsLoading(false)}
         />

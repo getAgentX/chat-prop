@@ -2,10 +2,10 @@ const llmateConfig = {
   home: {
     light_logo: "/images/full-logo.svg",
     dark_logo: "/images/full-logo-dark.svg",
-    title: "Hi! I’m ChatProp",
-    sub_title: "🏡 Your AI personal assistant for finding your dream home!",
+    title: "Welcome to LLmate!",
+    sub_title: "🤖 Build your AI workforce customized to your needs. We provide the tools to build, train, and deploy your AI assistants.",
     description:
-      "🚀 Explore Bangalore's prime properties with our AI Investment Consultant. Effortless and personalized advice at your fingertips.",
+      "Try out our AI assistants and see how they can help you. We have a variety of AI assistants that can help you with your business needs. You can also build your own AI assistant using our platform.",
   },
   apps: [
     {
@@ -17,8 +17,6 @@ const llmateConfig = {
         user: "/images/user.svg",
         userdark: "/images/user-dark.svg",
       },
-      // app_id: "6501d2848ad0f1ca427d4056",
-      // api_key: "37da52c0-00b5-4638-9859-ae98ed776eaf",
       app_id: process.env.APP_CHATPROP_ID,
       api_key: process.env.CHATPROP_API_KEY,
       defaultMessage: [
@@ -59,12 +57,10 @@ const llmateConfig = {
         user: "/images/user.svg",
         userdark: "/images/user-dark.svg",
       },
-      // app_id: "65843af50d2110111727f835",
-      // api_key: "9a710427-6b08-4a49-a7a8-f963e7d0916e",
       app_id: process.env.APP_LIMESEGPT_ID,
       api_key: process.env.LIMESEGPT_API_KEY,
       defaultMessage: [
-        "Welcome to LimeseGPT! I’m an AI skincare assistant that can help you with your skincare routine. I can recommend products, give you personalized skincare advice, and answer your skincare questions. I'm here to help you achieve your skincare goals!",
+        "Welcome to LimeseGPT! I'm an AI skincare assistant that can help you with your skincare routine. I can recommend products, give you personalized skincare advice, and answer your skincare questions. I'm here to help you achieve your skincare goals!",
       ],
       defaultQuestions: [
         "✨ What are the best products for acne?",

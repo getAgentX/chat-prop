@@ -12,7 +12,7 @@ import toast from "react-hot-toast";
 import Link from "next/link";
 import { createSSEWithPost } from "@/utils/sse";
 import { useRouter } from "next/router";
-import llmateConfig from "@/llmate.cofig";
+import llmateConfig from "@/llmate.config";
 
 const Chat = () => {
   const [prompt, setPrompt] = useState("");
