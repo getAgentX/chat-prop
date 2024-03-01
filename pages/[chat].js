@@ -1,5 +1,10 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
-import { ThoughtCard, TrendingSidebar, ReactTiny } from "@/components";
+import {
+  ThoughtCard,
+  TrendingSidebar,
+  ReactTiny,
+  TypingEffectComponent,
+} from "@/components";
 import axios from "axios";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -693,12 +698,10 @@ const Chat = () => {
                       )}
 
                       <div className="flex flex-col w-full prose-sm prose xsm:px-4 xsm:prose-base text-muted max-w-none prose-a:text-link marker:text-muted prose-strong:text-muted">
-                        <Markdown
-                          remarkPlugins={[remarkGfm]}
-                          components={MarkDownComponent}
-                        >
-                          {responseStream.join("")}
-                        </Markdown>
+                        <TypingEffectComponent
+                          responseStream={responseStream.join("")}
+                          typingSpeed={10}
+                        />
                       </div>
                     </div>
                   </div>
