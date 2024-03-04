@@ -5,7 +5,7 @@ const ThoughtCard = ({ name, theme, loading }) => {
 
   return (
     <li className="mb-6 space-x-4 ms-6">
-      <span className="absolute flex items-center justify-center w-8 h-8 rounded-full bg-foreground -start-4 ring-1 ring-border">
+      <span className="absolute flex items-center justify-center w-8 h-8 rounded-full bg-border -start-4 ring-1 ring-border">
         {loading ? (
           <div role="status">
             <svg
@@ -33,7 +33,7 @@ const ThoughtCard = ({ name, theme, loading }) => {
           </div>
         ) : (
           <svg
-            className="h-3.5 w-3.5 text-blue-500"
+            className="h-3.5 w-3.5 text-accent"
             aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -54,10 +54,10 @@ const ThoughtCard = ({ name, theme, loading }) => {
         <div
           className={`flex items-center px-3 py-1.5 space-x-4 rounded-lg max-w-fit border ${
             loading
-              ? "text-muted bg-foreground border-border"
+              ? "text-muted bg-border border-border"
               : `${
                   theme === "dark"
-                    ? "text-muted bg-foreground border-border"
+                    ? "text-muted bg-border border-border"
                     : "text-emerald-900 bg-emerald-100 border-emerald-500"
                 }`
           }`}

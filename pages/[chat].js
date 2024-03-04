@@ -120,6 +120,24 @@ const Chat = () => {
       },
     });
 
+    const sequenceEvents = response?.data?.processed_events?.map((item) => {
+      let data;
+
+      if (item.event_type === "thought") {
+        data = {
+          event: item.event_type,
+          response: item.tool_name,
+        };
+      } else if (item.event_type === "response") {
+        data = {
+          event: item.event_type,
+          response: item.response,
+        };
+      }
+
+      return data;
+    });
+
     const responseData = response?.data?.result;
     const messageId = response?.data?.message_id;
 
@@ -132,6 +150,7 @@ const Chat = () => {
         value: responseData,
         thoughts: [...thoughts],
         links: linksArray,
+        sequence: sequenceEvents,
       };
 
       setHistory((prev) => [...prev, queryData]);
@@ -154,6 +173,7 @@ const Chat = () => {
       value: data,
       thoughts: [],
       links: [],
+      sequence: [],
     };
 
     setHistory((prev) => [...prev, queryData]);
@@ -325,7 +345,7 @@ const Chat = () => {
 
   return (
     <div className="relative flex flex-col min-h-[100dvh] h-full bg-background">
-      <div className="sticky top-0 left-0 z-40 w-full px-4 py-4 border-b bg-background border-border">
+      <div className="sticky top-0 left-0 z-40 w-full px-4 py-3 border-b bg-background border-border">
         <div className="w-full max-w-5xl mx-auto">
           <nav className="flex items-center justify-between">
             <Link href="/" className="flex items-center space-x-3">
@@ -425,12 +445,12 @@ const Chat = () => {
         </div>
       </div>
 
-      <div className="relative">
+      <div className="relative flex-1 mt-2">
         <div className="flex flex-col w-full mx-auto">
           <div className="py-10 xsm:py-16 bg-background">
-            <div className="max-w-5xl px-4 mx-auto">
+            <div className="max-w-3xl px-4 mx-auto">
               <div className="flex space-x-4">
-                <div className="flex w-16 xsm:max-w-[60px] xsm:w-full">
+                <div className="flex w-12 xsm:max-w-[40px] xsm:w-full">
                   <div>
                     <img
                       src={
@@ -439,7 +459,7 @@ const Chat = () => {
                           : infoData?.images?.bot
                       }
                       alt="bot icon"
-                      className="w-8 rounded-full xsm:w-full aspect-square"
+                      className="w-6 rounded-full xsm:w-full aspect-square"
                     />
                   </div>
                 </div>
@@ -462,7 +482,7 @@ const Chat = () => {
                     {infoData?.defaultQuestions.map((question, index) => {
                       return (
                         <div
-                          className="flex items-center px-4 py-4 mr-4 text-sm font-normal transition-all duration-300 border rounded-md cursor-pointer xsm:text-base bg-background hover:bg-foreground text-muted border-border"
+                          className="flex items-center px-4 py-2 mr-4 text-xs font-medium transition-all duration-300 border rounded-md cursor-pointer xsm:text-sm bg-background hover:bg-foreground text-muted border-border"
                           key={index}
                           onClick={() => fetchData(question)}
                         >
@@ -476,21 +496,24 @@ const Chat = () => {
             </div>
           </div>
 
-          <div className="pb-16 xsm:pb-32">
+          <div className="pb-10">
             {history?.map(
-              ({ messageId, name, value, thoughts, links }, index) => {
+              (
+                { messageId, name, value, thoughts, links, sequence },
+                index
+              ) => {
                 if (name === "user") {
                   return (
-                    <div className="py-8 bg-hover" key={index}>
-                      <div className="max-w-5xl px-4 mx-auto">
+                    <div key={index}>
+                      <div className="max-w-3xl px-4 py-1 mx-auto">
                         <div className="flex justify-end space-x-4">
                           <div className="flex items-center">
-                            <p className="w-full text-sm font-normal leading-7 xsm:text-base text-muted">
+                            <p className="relative w-full py-1.5 px-4 text-sm font-normal rounded-2xl xsm:text-[15px] xsm:leading-5 text-accent bg-secondary">
                               {value}
                             </p>
                           </div>
 
-                          <div className="flex w-16 xsm:max-w-[60px] xsm:w-full">
+                          {/* <div className="flex w-16 xsm:max-w-[60px] xsm:w-full">
                             <div>
                               <img
                                 src={
@@ -502,7 +525,7 @@ const Chat = () => {
                                 className="w-8 rounded-full xsm:w-full aspect-square"
                               />
                             </div>
-                          </div>
+                          </div> */}
                         </div>
                       </div>
                     </div>
@@ -511,10 +534,10 @@ const Chat = () => {
 
                 if (name === "bot") {
                   return (
-                    <div className="py-10 bg-background" key={index}>
-                      <div className="max-w-5xl px-4 mx-auto">
-                        <div className="flex flex-col space-y-4 xsm:flex-row xsm:space-y-0 xsm:space-x-4">
-                          <div className="flex w-16 xsm:max-w-[60px] xsm:w-full">
+                    <div className="py-1 bg-background" key={index}>
+                      <div className="max-w-3xl px-4 mx-auto">
+                        <div className="flex space-x-4">
+                          <div className="flex w-12 xsm:max-w-[40px] xsm:w-full">
                             <div>
                               <img
                                 src={
@@ -523,37 +546,81 @@ const Chat = () => {
                                     : infoData?.images?.bot
                                 }
                                 alt="bot icon"
-                                className="w-8 rounded-full xsm:w-full aspect-square"
+                                className="w-6 rounded-full xsm:w-full aspect-square"
                               />
                             </div>
                           </div>
 
-                          <div className="flex flex-col w-full space-y-6">
-                            {thoughts.length > 0 && (
-                              <div className="pt-1.5 pb-4 pl-4 xsm:pl-8">
-                                <ol className="relative flex flex-col text-muted border-border border-s [&>*:last-child]:mb-0">
-                                  {thoughts.map((thought, index) => {
-                                    return (
-                                      <ThoughtCard
-                                        name={thought}
-                                        theme={theme}
-                                        key={index}
-                                        loading={false}
-                                      />
-                                    );
-                                  })}
-                                </ol>
-                              </div>
-                            )}
+                          <div className="relative px-4 py-1 rounded-tl-none rounded-2xl bg-foreground">
+                            <div className="flex flex-col">
+                              {sequence?.map((item) => {
+                                if (item.event === "thought") {
+                                  return (
+                                    <div className="pt-4 pb-4 pl-8">
+                                      <div className="relative flex flex-col text-accent border-border border-s [&>*:last-child]:mb-0">
+                                        <div className="mb-6 space-x-4 ms-6">
+                                          <span className="absolute flex items-center justify-center w-8 h-8 rounded-full bg-border -start-4 ring-1 ring-border">
+                                            <svg
+                                              className="h-3.5 w-3.5 text-accent-foreground"
+                                              aria-hidden="true"
+                                              xmlns="http://www.w3.org/2000/svg"
+                                              fill="none"
+                                              viewBox="0 0 16 12"
+                                            >
+                                              <path
+                                                stroke="currentColor"
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M1 5.917 5.724 10.5 15 1.5"
+                                              />
+                                            </svg>
+                                          </span>
 
-                            <div className="prose-sm prose xsm:px-4 text-muted xsm:prose-base prose-a:text-link prose-strong:text-muted marker:text-muted max-w-none">
-                              <Markdown
-                                remarkPlugins={[remarkGfm]}
-                                components={MarkDownComponent}
-                              >
-                                {value}
-                              </Markdown>
+                                          <div className="flex flex-col space-y-4 xsm:space-y-0 xsm:space-x-4 xsm:flex-row xsm:items-center">
+                                            <div className="flex items-center px-3 py-1.5 space-x-4 rounded-lg max-w-fit text-accent bg-border">
+                                              <p className="text-sm font-normal capitalize xsm:text-base text-accent-foreground">
+                                                {item.response}
+                                              </p>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  );
+                                }
+
+                                if (item.event === "response") {
+                                  return (
+                                    <div className="prose-sm prose xsm:px-4 text-muted xsm:prose-base prose-a:text-link prose-strong:text-muted marker:text-muted max-w-none">
+                                      <Markdown
+                                        remarkPlugins={[remarkGfm]}
+                                        components={MarkDownComponent}
+                                      >
+                                        {value}
+                                      </Markdown>
+                                    </div>
+                                  );
+                                }
+                              })}
                             </div>
+
+                            {/* {thoughts.length > 0 && (
+                                <div className="pt-1.5 pb-4 pl-4 xsm:pl-8">
+                                  <ol className="relative flex flex-col text-muted border-border border-s [&>*:last-child]:mb-0">
+                                    {thoughts.map((thought, index) => {
+                                      return (
+                                        <ThoughtCard
+                                          name={thought}
+                                          theme={theme}
+                                          key={index}
+                                          loading={false}
+                                        />
+                                      );
+                                    })}
+                                  </ol>
+                                </div>
+                              )} */}
 
                             {links.length > 0 && (
                               <div className="grid grid-cols-2 gap-4 md:py-10">
@@ -563,7 +630,7 @@ const Chat = () => {
                               </div>
                             )}
 
-                            <div className="flex items-center justify-between pt-4">
+                            <div className="flex items-center justify-between py-4">
                               <CopyToClipboard
                                 text={value}
                                 onCopy={() => handleCopy()}
@@ -644,10 +711,10 @@ const Chat = () => {
             )}
 
             {isLoading && (
-              <div className="py-10 bg-background">
-                <div className="max-w-5xl px-6 mx-auto">
-                  <div className="flex flex-col space-y-4 xsm:flex-row xsm:space-y-0 xsm:space-x-4">
-                    <div className="flex w-16 xsm:max-w-[60px] xsm:w-full">
+              <div className="bg-background">
+                <div className="max-w-3xl px-4 mx-auto">
+                  <div className="flex space-x-2">
+                    <div className="flex w-12 xsm:max-w-[40px] xsm:w-full">
                       <div>
                         <img
                           src={
@@ -656,52 +723,53 @@ const Chat = () => {
                               : infoData?.images?.bot
                           }
                           alt="bot icon"
-                          className="w-8 rounded-full xsm:w-full aspect-square"
+                          className="w-6 rounded-full xsm:w-full aspect-square"
                         />
                       </div>
                     </div>
 
                     <div className="flex flex-col w-full space-y-6">
                       {skeletonLoader && thoughts.length === 0 && (
-                        <div
-                          role="status"
-                          className="w-full px-6 mx-auto animate-pulse"
-                        >
-                          <div className="w-56 h-2 mb-4 rounded-full bg-foreground"></div>
-                          <div className="mb-2.5 h-2 max-w-sm rounded-full bg-foreground"></div>
-                          <div className="mb-2.5 h-2 rounded-full bg-foreground"></div>
-                          <div className="mb-2.5 h-2 max-w-2xl w-full rounded-full bg-foreground"></div>
-                          <div className="mb-2.5 h-2 max-w-xl w-full rounded-full bg-foreground"></div>
-                          <div className="h-2 max-w-xs rounded-full bg-foreground"></div>
-                          <span className="sr-only">Loading...</span>
+                        <div className="w-32">
+                          <div className="relative w-full py-3 pl-4 pr-6 text-sm font-normal leading-7 rounded-tl-none bg-foreground rounded-2xl xsm:text-base text-accent">
+                            <div className="loader"></div>
+                          </div>
                         </div>
                       )}
 
-                      {thoughts.length > 0 && (
-                        <div className="pt-1.5 pb-4 pl-4 xsm:pl-8">
-                          <ol className="relative flex flex-col text-muted border-border border-s [&>*:last-child]:mb-0">
-                            {thoughts.map((thought, index) => {
-                              return (
-                                <ThoughtCard
-                                  name={thought}
-                                  theme={theme}
-                                  key={index}
-                                  loading={
-                                    index === thoughts.length - 1 &&
-                                    loadingState
-                                  }
-                                />
-                              );
-                            })}
-                          </ol>
-                        </div>
-                      )}
+                      <div
+                        className={`relative rounded-tl-none rounded-2xl bg-foreground ${
+                          skeletonLoader === false ? "px-4 py-2 pl-6 pr-4" : ""
+                        }`}
+                      >
+                        <div className="flex flex-col">
+                          {thoughts.length > 0 && (
+                            <div className="pb-4 pl-8 pt-1.5">
+                              <ol className="relative flex flex-col text-accent border-border border-s [&>*:last-child]:mb-0 prose-code:text-accent">
+                                {thoughts.map((thought, index) => {
+                                  return (
+                                    <ThoughtCard
+                                      name={thought}
+                                      theme={theme}
+                                      key={index}
+                                      loading={
+                                        index === thoughts.length - 1 &&
+                                        loadingState
+                                      }
+                                    />
+                                  );
+                                })}
+                              </ol>
+                            </div>
+                          )}
 
-                      <div className="flex flex-col w-full prose-sm prose xsm:px-4 xsm:prose-base text-muted max-w-none prose-a:text-link marker:text-muted prose-strong:text-muted">
-                        <TypingEffectComponent
-                          responseStream={responseStream.join("")}
-                          typingSpeed={10}
-                        />
+                          <div className="flex flex-col w-full prose-sm prose xsm:px-4 xsm:prose-base text-muted max-w-none prose-a:text-link marker:text-muted prose-strong:text-muted">
+                            <TypingEffectComponent
+                              responseStream={responseStream.join("")}
+                              typingSpeed={10}
+                            />
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -711,7 +779,7 @@ const Chat = () => {
           </div>
         </div>
 
-        <div className="fixed bottom-0 left-0 flex items-center justify-center w-full pb-2 xsm:px-4 xsm:pb-6">
+        {/* <div className="fixed bottom-0 left-0 flex items-center justify-center w-full pb-2 xsm:px-4 xsm:pb-6">
           <div className="relative w-full max-w-5xl px-4">
             <input
               type="text"
@@ -763,9 +831,63 @@ const Chat = () => {
               </span>
             )}
           </div>
-        </div>
+        </div> */}
 
         <div ref={scrollRef}></div>
+      </div>
+
+      <div className="sticky bottom-0 left-0 flex items-center justify-center w-full pt-2 pb-2 xsm:px-4 xsm:pb-6 bg-background">
+        <div className="relative w-full max-w-3xl px-4">
+          <input
+            type="text"
+            className="w-full py-4 pl-4 pr-16 text-lg font-normal bg-transparent border outline-none xsm:pr-20 xsm:pl-8 xsm:py-4 rounded-xl focus:bg-transparent text-accent placeholder:text-accent placeholder:font-normal border-border"
+            placeholder={
+              isLoading ? "Agent is thinking..." : "Ask me anything..."
+            }
+            onChange={(e) => setPrompt(e.target.value)}
+            onKeyDown={handleKeyDown}
+            value={prompt}
+          />
+
+          <span></span>
+
+          {isLoading || (
+            <span className="absolute flex items-center justify-center -translate-y-1/2 top-1/2 right-10">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                className="w-6 h-6 transition-all duration-300 cursor-pointer text-accent hover:scale-110"
+                onClick={() => handleSendMessage(prompt)}
+              >
+                <path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z" />
+              </svg>
+            </span>
+          )}
+
+          {isLoading && (
+            <span className="absolute flex items-center justify-center -translate-y-1/2 top-1/2 right-10">
+              <div role="status">
+                <svg
+                  aria-hidden="true"
+                  className="w-6 h-6 text-pink-200 animate-spin fill-secondary"
+                  viewBox="0 0 100 101"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                    fill="currentColor"
+                  />
+                  <path
+                    d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                    fill="currentFill"
+                  />
+                </svg>
+              </div>
+            </span>
+          )}
+        </div>
       </div>
 
       <TrendingSidebar
