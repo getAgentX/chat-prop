@@ -508,7 +508,7 @@ const Chat = () => {
                       <div className="max-w-3xl px-4 py-1 mx-auto">
                         <div className="flex justify-end space-x-4">
                           <div className="flex items-center">
-                            <p className="relative w-full py-1.5 px-4 text-sm font-normal rounded-2xl xsm:text-[15px] xsm:leading-5 text-accent bg-secondary">
+                            <p className="relative w-full py-1.5 px-4 text-sm font-normal rounded-2xl xsm:text-[15px] xsm:leading-5 text-white bg-secondary">
                               {value}
                             </p>
                           </div>
@@ -561,7 +561,7 @@ const Chat = () => {
                                         <div className="mb-6 space-x-4 ms-6">
                                           <span className="absolute flex items-center justify-center w-8 h-8 rounded-full bg-border -start-4 ring-1 ring-border">
                                             <svg
-                                              className="h-3.5 w-3.5 text-accent-foreground"
+                                              className="h-3.5 w-3.5 text-white"
                                               aria-hidden="true"
                                               xmlns="http://www.w3.org/2000/svg"
                                               fill="none"
@@ -622,13 +622,13 @@ const Chat = () => {
                                 </div>
                               )} */}
 
-                            {links.length > 0 && (
+                            {/* {links.length > 0 && (
                               <div className="grid grid-cols-2 gap-4 md:py-10">
                                 {links.map(({ link, name }) => {
                                   return <ReactTiny url={link} key={link} />;
                                 })}
                               </div>
-                            )}
+                            )} */}
 
                             <div className="flex items-center justify-between py-4">
                               <CopyToClipboard

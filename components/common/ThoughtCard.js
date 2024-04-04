@@ -13,7 +13,7 @@ const ThoughtCard = ({ name, theme, loading }) => {
               className={`w-3.5 h-3.5 animate-spin ${
                 theme === "dark"
                   ? "text-background fill-muted"
-                  : "text-muted-foreground fill-secondary"
+                  : "text-muted-foreground fill-white"
               }`}
               viewBox="0 0 100 101"
               fill="none"
@@ -33,7 +33,7 @@ const ThoughtCard = ({ name, theme, loading }) => {
           </div>
         ) : (
           <svg
-            className="h-3.5 w-3.5 text-accent"
+            className="h-3.5 w-3.5 text-white"
             aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -52,17 +52,9 @@ const ThoughtCard = ({ name, theme, loading }) => {
 
       <div className="flex flex-col space-y-4 xsm:space-y-0 xsm:space-x-4 xsm:flex-row xsm:items-center">
         <div
-          className={`flex items-center px-3 py-1.5 space-x-4 rounded-lg max-w-fit border ${
-            loading
-              ? "text-muted bg-border border-border"
-              : `${
-                  theme === "dark"
-                    ? "text-muted bg-border border-border"
-                    : "text-emerald-900 bg-emerald-100 border-emerald-500"
-                }`
-          }`}
+          className={`flex items-center px-3 py-1.5 space-x-4 rounded-lg max-w-fit bg-border`}
         >
-          <p className="text-sm font-normal capitalize xsm:text-base text-muted">
+          <p className="text-sm font-normal text-white capitalize xsm:text-base">
             {nameText}
           </p>
         </div>
